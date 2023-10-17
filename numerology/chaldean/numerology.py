@@ -1,3 +1,4 @@
+from typing import Optional
 from numerology.pythagorean import *
 import pythagorean.numerology as pnumerology
 
@@ -67,8 +68,11 @@ class CNumerology(pnumerology.Numerology):
 
     def set_key_figures(self):
         """Initializes the key figures dictionnary."""
-        super(CNumerology, self).set_key_figures()
+        super().set_key_figures()
         self._key_figures["compound_number"] = self.compound_number
+        self._key_figures["name_number"] = None
+        self._key_figures["destiny_number"] = None
+        self._key_figures["psychic_number"] = None
 
     @property
     def compound_number(self) -> int:

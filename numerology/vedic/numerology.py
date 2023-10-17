@@ -1,7 +1,8 @@
+from typing import Optional
 from numerology.pythagorean import *
-import pythagorean.numerology as vnumerology
+import pythagorean.numerology as pnumerology
 
-class VNumerology(vnumerology.Numerology):
+class VNumerology(pnumerology.Numerology):
     """Numerology is the science of numbers. It is the study of the numerical value of the letters in words, names, dates, and ideas.
 
     Vedic Numerology is an ancient Indian system that assigns special meanings and planetary rulership to numbers from 1 to 9,
@@ -68,10 +69,11 @@ class VNumerology(vnumerology.Numerology):
 
     def set_key_figures(self):
         """Initializes the key figures dictionnary."""
-        super(VNumerology, self).set_key_figures()
+        super().set_key_figures()
         self._key_figures["name_number"] = self.name_number
         self._key_figures["destiny_number"] = self.destiny_number
         self._key_figures["psychic_number"] = self.psychic_number
+        self._key_figures["compound_number"] = None
 
     @property
     def name_number(self) -> int:

@@ -146,13 +146,13 @@ class Numerology:
     def get_numerology_sum(
         cls, tuple_obj: Tuple[int], upper_bound: int = 9, master_number: bool = True
     ) -> int:
-        """Make the numerology sum of the itarable (here, tuples) in parameter.
+        """Make the numerology sum of the iterable (here, tuples) in parameter.
         The numerology sum is the sum of every digit in a number.
         The result is sum again if it is greater than 9 unless it's a multiple of 11.
 
         Args:
             tuple_obj (Tuple[int]): Tuple to sum up
-            upper_bound (int, optional): Upper bound of the recursivess. Defaults to 9.
+            upper_bound (int, optional): Upper bound of the recursive. Defaults to 9.
             master_number (bool, optional): If `master_number` is False, the multiple of 11 are not taken into account. Defaults to True.
 
         Returns:
@@ -170,6 +170,15 @@ class Numerology:
         return int(sum)
 
     # INIT METHODS
+
+    def get_key_figures(self):
+        if self.names_are_valid:
+            self.init_inner_variables()
+            self.set_key_figures()
+            self._interpretations = Interpretations(key_figures=self.key_figures)
+            return self.key_figures
+        else:
+            return 'None'
 
     def check_parameters(self):
         self.check_first_name()
@@ -221,15 +230,15 @@ class Numerology:
             self.birthdate_day = int(self.birthdate.split("-")[2])
 
     def set_key_figures(self):
-        """Initializes the key figures dictionnary."""
+        """Initializes the key figures dictionary."""
 
         # First name and last name elements
         if self.names_are_valid:
             # Setting the key figures
             self._key_figures["first_name"] = self.first_name
             self._key_figures["last_name"] = self.last_name
-            # Hearth Desire Number (vowels) = Nombre intime (voyelles)
-            self._key_figures["hearth_desire_number"] = self.hearth_desire_number
+            # Hearts Desire Number (vowels) = Nombre intime (voyelles)
+            self._key_figures["hearts_desire_number"] = self.hearts_desire_number
             # Personality Number (consonants) = Nombre de réalisation (consonnes)
             self._key_figures["personality_number"] = self.personality_number
             # Destiny Number (full name) = Nombre d'expression (nom complet)
@@ -243,6 +252,9 @@ class Numerology:
             self._key_figures[
                 "full_name_missing_numbers"
             ] = self.full_name_missing_numbers
+            self._key_figures["name_number"] = None
+            self._key_figures["psychic_number"] = None
+            self._key_figures["compound_number"] = None
 
         # Birthdate elements (as birthdate is optional)
         if self.birthdate_is_valid:
@@ -257,6 +269,9 @@ class Numerology:
             self._key_figures[
                 "birthdate_year_num_alternative"
             ] = self.birthdate_year_num_alternative
+            self._key_figures["attitude_number"] = self.attitude_number
+            self._key_figures["karma_number"] = self.karma_number
+            self._key_figures["karmic_debt_numbers"] = self.karmic_debt_numbers
             self._key_figures["power_number"] = self.power_number
             self._key_figures[
                 "power_number_alternative"
@@ -265,7 +280,7 @@ class Numerology:
     # PROPERTIES
     @property
     def key_figures(self) -> Dict[str, int]:
-        """Returns the keys figures in a dictionnary."""
+        """Returns the keys figures in a dictionary."""
         return self._key_figures
 
     @property
@@ -276,7 +291,7 @@ class Numerology:
     def life_path_number(self) -> int:
         """Returns the Life Path Number.
 
-        The life path number is the most important one in a numerology chart.
+        The life path number, also referred as Lucky Number in some places, is the most important one in a numerology chart.
         It describes the direction of your life journey.
         It offers insight into the skills and traits you may possess and the kinds of challenges you can expect to face in your life.
         It is calculated from the birth date.
@@ -339,7 +354,7 @@ class Numerology:
     def power_number(self) -> int:
         """Returns the Power Number
 
-        The power number is obtained by adding together the life path number and destiny number. Then reduce the number to a single digit.
+        Sometimes called the Maturity Number, the power number is obtained by adding together the life path number and destiny number. Then reduce the number to a single digit.
 
         Returns:
             int: [description]
@@ -353,7 +368,7 @@ class Numerology:
     def power_number_alternative(self) -> int:
         """Returns the Power Number (Alternative)
 
-        The power number is obtained by adding together the life path number (alternative) and destiny number. Then reduce the number to a single digit.
+        Sometimes called the Maturity Number, the power number is obtained by adding together the life path number (alternative) and destiny number. Then reduce the number to a single digit.
 
         Returns:
             int: [description]
@@ -367,7 +382,7 @@ class Numerology:
     def personality_number(self) -> int:
         """Returns the Personality Number.
 
-        Sometimes called the Inner Dream Number, the Personnality Number indicates our external personality.
+        Sometimes called the Inner Dream or Personal Dream Number, the Personality Number indicates our external personality.
         It is calculated from the consonants in the full name.
 
         Returns:
@@ -384,14 +399,14 @@ class Numerology:
         return self.get_numerology_sum(consonants_in_name_num)
 
     @property
-    def hearth_desire_number(self) -> int:
-        """Returns the Hearth Desire Number.
+    def hearts_desire_number(self) -> int:
+        """Returns the Hearts Desire Number.
 
-        Sometimes called the Soul Urge Number, the Hearth Desire Number describes the inner ressources.
+        Sometimes called the Soul Urge or Soul Prompting Number, the Hearts Desire Number describes the inner desires.
         It is calculated from the vowels in the full name.
 
         Returns:
-            int: Hearth Desire Number.
+            int: Hearts Desire Number.
         """
         vowels_in_name_num = fct.match_numbers_to_letters(
             (
@@ -438,7 +453,9 @@ class Numerology:
 
     @property
     def full_name_missing_numbers(self) -> Tuple:
-        """Returns the missing numbers from the name as a tuple."""
+        """Returns the missing numbers from the name as a tuple.
+        
+        Also called Karmic lesson numbers, shows a vacuum that needs to be filled in this lifetime by mastering the required Karmic lesson."""
         full_name = self.first_name_cleaned + self.last_name_cleaned
         full_name_num = fct.match_numbers_to_letters(full_name, self.alphabet)
         return tuple([number for number in range(1, 10) if number not in full_name_num])
@@ -481,6 +498,82 @@ class Numerology:
         return self.get_numerology_sum(
             fct.int_to_tuple(birthday_year_truncate), master_number=False
         )
+
+    @property
+    def attitude_number(self) -> int:
+        """Returns the numerology sum of the birthday date and month.
+
+        Sometimes called the Sun Number, the Attitude Number indicates how we behave in situations with others Or our attitude towards them.
+        Example: The sum of 27th of December in 1986-12-27 will 27+12 > 12 > 3."""
+        if self.birthdate:
+            day = self.get_numerology_sum(
+                fct.int_to_tuple(self.birthdate_day), master_number=False
+            )
+            month = self.get_numerology_sum(
+                fct.int_to_tuple(self.birthdate_month), master_number=False
+            )
+            sum = day + month
+            return self.get_numerology_sum(fct.int_to_tuple(sum), master_number=False)
+
+    @property
+    def karma_number(self) -> int:
+        """Returns the numerology sum of the (birthday date - 1).
+
+        Example: For 1986-12-27 will be 27-1 > 26 > 8."""
+        if self.birthdate:
+            day = self.birthdate_day - 1
+            return self.get_numerology_sum(fct.int_to_tuple(day), master_number=False)
+
+    @property
+    def karmic_debt_numbers(self) -> Dict[str, int]:
+        """Returns Karmic debts associated with any of Life Path, Personality, Birth Day, Expression, and Heart’s Desire."""
+        debt_numbers = [19, 13, 14, 16]
+        core_karmic_num = {}
+        day = fct.int_to_tuple(self.birthdate_day)
+        month = fct.int_to_tuple(self.birthdate_month)
+        year = fct.int_to_tuple(self.birthdate_year)
+        sum = day + month + year
+        life_path_number = self.get_numerology_sum(sum, upper_bound=19, master_number=False)
+        if life_path_number in core_karmic_num:
+            core_karmic_num["life_path_number"] = life_path_number
+
+        vowels_in_name_num = fct.match_numbers_to_letters(
+            (
+                letter
+                for letter in (self.first_name_cleaned + self.last_name_cleaned)
+                if letter in self.vowels
+            ),
+            self.alphabet,
+        )
+        hearts_desire_number = self.get_numerology_sum(vowels_in_name_num, upper_bound=19)
+        if hearts_desire_number in debt_numbers:
+            core_karmic_num["hearts_desire_number"] = hearts_desire_number
+
+        consonants_in_name_num = fct.match_numbers_to_letters(
+            (
+                letter
+                for letter in (self.first_name_cleaned + self.last_name_cleaned)
+                if letter in self.consonants
+            ),
+            self.alphabet,
+        )
+        personality_number = self.get_numerology_sum(consonants_in_name_num, upper_bound=19)
+        if personality_number in debt_numbers:
+            core_karmic_num["personality_number"] = personality_number
+
+        destiny_number = self.get_numerology_sum(
+            (self.active_number, self.legacy_number), upper_bound=19, master_number=True
+        )
+        if destiny_number in debt_numbers:
+            core_karmic_num["destiny_number"] = destiny_number
+
+        birthdate_day_num = self.get_numerology_sum(
+            fct.int_to_tuple(self.birthdate_day), upper_bound=19, master_number=False
+        )
+        if birthdate_day_num in debt_numbers:
+            core_karmic_num["birthdate_day_num"] = birthdate_day_num
+
+        return core_karmic_num
 
     @property
     def key_figures(self) -> Dict:
