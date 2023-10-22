@@ -100,59 +100,11 @@ class Interpretations:
                 "number": value,
                 "meaning": cls.birthdate_day_num(number=value),
             }
-        elif name == "birthdate_month_num":
-            interpretation = {
-                "name": _("Birthdate Month Number"),
-                "number": value,
-                "meaning": cls.birthdate_month_num(number=value),
-            }
-        elif name == "birthdate_year_num":
-            interpretation = {
-                "name": _("Birthdate Year Number"),
-                "number": value,
-                "meaning": cls.birthdate_year_num(number=value),
-            }
         elif name == "birthdate_year_num_alternative":
             interpretation = {
-                "name": _("Birthdate Year Number Alternative"),
+                "name": _("Age Number"),
                 "number": value,
-                "meaning": cls.birthdate_year_num_alternative(number=value),
-            }
-        elif name == "attitude_number":
-            interpretation = {
-                "name": _("Attitude Number"),
-                "number": value,
-                "meaning": cls.attitude_number(number=value),
-            }
-        elif name == "power_number":
-            interpretation = {
-                "name": _("Power (Maturity) Number"),
-                "number": value,
-                "meaning": cls.power_number(number=value),
-            }
-        elif name == "power_number_alternative":
-            interpretation = {
-                "name": _("Power (Maturity) Number Alternative"),
-                "number": value,
-                "meaning": cls.power_number_alternative(number=value),
-            }
-        elif name == "karma_number":
-            interpretation = {
-                "name": _("Karma Number"),
-                "number": value,
-                "meaning": cls.karma_number(number=value),
-            }
-        elif name == "full_name_missing_numbers":
-            interpretation = {
-                "name": _("Karmic Lesson Numbers"),
-                "number": value,
-                "meaning": cls.full_name_missing_numbers(numbers=value),
-            }
-        elif name == "karmic_debt_numbers":
-            interpretation = {
-                "name": _("Karmic Debt Numbers"),
-                "number": value,
-                "meaning": cls.karmic_debt_numbers(numbers=value),
+                "meaning": "The year when you are aged " + str(value) + " will be an important year of your life.",
             }
         return interpretation
 
@@ -179,56 +131,6 @@ class Interpretations:
     @classmethod
     def birthdate_day_num(cls, number: int):
         return DayNumber.meanings.get(number, None)
-
-    @classmethod
-    def birthdate_month_num(cls, number: int):
-        return MonthNumber.meanings.get(number, None)
-
-    @classmethod
-    def birthdate_year_num(cls, number: int):
-        return YearNumber.meanings.get(number, None)
-
-    @classmethod
-    def birthdate_year_num_alternative(cls, number: int):
-        return YearNumber.meanings.get(number, None)
-
-    @classmethod
-    def attitude_number(cls, number: int):
-        return AttitudeNumber.meanings.get(number, None)
-
-    @classmethod
-    def power_number(cls, number: int):
-        return PowerNumber.meanings.get(number, None)
-
-    @classmethod
-    def power_number_alternative(cls, number: int):
-        return PowerNumber.meanings.get(number, None)
-
-    @classmethod
-    def karma_number(cls, number: int):
-        return KarmaNumber.meanings.get(number, None)
-
-    @classmethod
-    def full_name_missing_numbers(cls, numbers: tuple):
-        if numbers is None:
-            return None
-        out_title = ""
-        out_text = ""
-        for n in numbers:
-            out_title += KarmicLessonNumber.meanings.get(n, None)["title"] + ", "
-            out_text += KarmicLessonNumber.meanings.get(n, None)["description"] + " \n\n"
-        return {"title": out_title.rstrip(", "), "description": out_text.rstrip("\n")}
-
-    @classmethod
-    def karmic_debt_numbers(cls, numbers: dict):
-        if numbers is None:
-            return None
-        out_title = ""
-        out_text = ""
-        for n in numbers.values():
-            out_title += KarmicDebtNumber.meanings.get(n, None)["title"] + ", "
-            out_text += KarmicDebtNumber.meanings.get(n, None)["description"] + " \n\n"
-        return {"title": out_title.rstrip(", "), "description": out_text.rstrip("\n")}
 
     @property
     def meanings(self):

@@ -22,7 +22,7 @@ try:
     language.install()
     _ = language.gettext
 except:
-    # If the current language does not have a translation, the default laguage (English) will be used English
+    # If the current language does not have a translation, the default language (English) will be used English
     language = gettext.translation(
         "numerology", localedir=localedir_path, languages=[default_lang]
     )
@@ -34,9 +34,9 @@ class DayNumber:
 
     meanings: Dict[int, Dict[str, str]] = {
         1: {
-            "title": _("I am important and independant"),
+            "title": _("I am important and independent"),
             "description": _(
-                "You strongly believe in your individuality and independance. You think you are driven to achieve goals and a strong assertive personality."
+                "You strongly believe in your individuality and independence. You think you are driven to achieve goals and a strong assertive personality."
             ),
         },
         2: {
@@ -76,7 +76,7 @@ class DayNumber:
             ),
         },
         8: {
-            "title": _("I am powerfull and can achieve anything"),
+            "title": _("I am powerful and can achieve anything"),
             "description": _(
                 "You think you are capable, powerful, and business-minded. You seek financial security and think you can achieve that with your strong drive for material success and power."
             ),
@@ -96,7 +96,7 @@ class DayNumber:
         22: {
             "title": _("I am an achiever and build dreams to reality"),
             "description": _(
-                "You believe in yourself as a master builder and manifestor of dreams. You see yourself as someone who can overcome mammoth challenges and still turn big ambitions into reality."
+                "You believe in yourself as a master builder and realizer of dreams. You see yourself as someone who can overcome mammoth challenges and still turn big ambitions into reality."
             ),
         },
     }

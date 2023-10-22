@@ -2,6 +2,9 @@ from typing import Optional
 from numerology.pythagorean import *
 import pythagorean.numerology as pnumerology
 
+from pythagorean.common import Functions as fct
+from .interpretations import Interpretations
+
 class CNumerology(pnumerology.Numerology):
     """Numerology is the science of numbers. It is the study of the numerical value of the letters in words, names, dates, and ideas.
 
@@ -66,24 +69,46 @@ class CNumerology(pnumerology.Numerology):
         "z",
     )
 
+    def __init__(self, first_name: str, last_name: str, birthdate: str, verbose: bool = True):
+        super().__init__(first_name, last_name, birthdate, verbose)
+        if self.names_are_valid:
+            self._interpretations = Interpretations(key_figures=self.key_figures)
+
     def set_key_figures(self):
-        """Initializes the key figures dictionnary."""
+        """Initializes the key figures dictionary."""
         super().set_key_figures()
         self._key_figures["compound_number"] = self.compound_number
         self._key_figures["name_number"] = None
         self._key_figures["destiny_number"] = None
         self._key_figures["psychic_number"] = None
+        self._key_figures["attitude_number"] = None
+        self._key_figures["karma_number"] = None
+        self._key_figures["karmic_debt_numbers"] = None
+        self._key_figures["power_number"] = None
+        self._key_figures["power_number_alternative"] = None
+        self._key_figures["full_name_numbers"] = None
+        self._key_figures["full_name_missing_numbers"] = None
 
     @property
     def compound_number(self) -> int:
-        """Returns the Compund Number.
+        """Returns the Compound Number.
 
-        Compound numbers denote the inner you, as well as any hidden influences that play a role in your life (present and future).
+        Compound Numbers, also known as Spiritual Numbers, denote the inner you, as well as any hidden influences that play a role in your life (present and future).
         It is calculated from adding the numbers assigned to the letters of your name full name. Then reduce till double digits.
 
         Returns:
-            int: Compund Number.
+            int: Compound Number.
         """
         active_number = self.get_numerology_sum(self.first_name_num, master_number=False)
         legacy_number = self.get_numerology_sum(self.last_name_num, master_number=False)
-        return int(str(active_number)+str(legacy_number))
+        return active_number + legacy_number
+
+    @property
+    def birthdate_year_num_alternative(self) -> int:
+        """Returns the numerology sum of the birthday year.
+
+        This method sums-reduces the 4 digits of the year.
+        This alternative one reduces upto 2 digits till 52."""
+        return self.get_numerology_sum(
+            fct.int_to_tuple(self.birthdate_year), upper_bound=52, master_number=True
+        )

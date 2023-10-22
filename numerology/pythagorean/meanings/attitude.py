@@ -22,7 +22,7 @@ try:
     language.install()
     _ = language.gettext
 except:
-    # If the current language does not have a translation, the default laguage (English) will be used English
+    # If the current language does not have a translation, the default language (English) will be used English
     language = gettext.translation(
         "numerology", localedir=localedir_path, languages=[default_lang]
     )
@@ -34,7 +34,7 @@ class AttitudeNumber:
 
     meanings: Dict[int, Dict[str, str]] = {
         1: {
-            "title": _("I project myself as independant and self made being"),
+            "title": _("I project myself as independent and self made being"),
             "description": _(
                 "You don't like to ask for help. You want to show a self-motivated, confident attitude that there's nothing that you can't achieve."
             ),

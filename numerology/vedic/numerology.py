@@ -68,12 +68,19 @@ class VNumerology(pnumerology.Numerology):
     )
 
     def set_key_figures(self):
-        """Initializes the key figures dictionnary."""
+        """Initializes the key figures dictionary."""
         super().set_key_figures()
         self._key_figures["name_number"] = self.name_number
         self._key_figures["destiny_number"] = self.destiny_number
         self._key_figures["psychic_number"] = self.psychic_number
         self._key_figures["compound_number"] = None
+        self._key_figures["life_path_number"] = None
+        self._key_figures["life_path_number_alternative"] = None
+        self._key_figures["attitude_number"] = None
+        self._key_figures["karma_number"] = None
+        self._key_figures["karmic_debt_numbers"] = None
+        self._key_figures["power_number"] = None
+        self._key_figures["power_number_alternative"] = None
 
     @property
     def name_number(self) -> int:
