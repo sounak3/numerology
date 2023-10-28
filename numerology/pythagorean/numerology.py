@@ -26,7 +26,7 @@ try:
         "numerology", localedir=localedir_path, languages=[lang]
     )
 except:
-    # If the current language does not have a translation, the default laguage (English) will be used English
+    # If the current language does not have a translation, the default language (English) will be used English
     language = gettext.translation(
         "numerology", localedir=localedir_path, languages=[default_lang]
     )
@@ -40,7 +40,7 @@ class Numerology:
     Pythagoras, the Greek mathematician and philosopher who lived from 569–470 B.C.,
     began his theory of numbers by discovering the numerical relationship between numbers and musical notes.
 
-    Then he studied numerology from Egytians priests and is now known as the father of Western numerology.
+    Then he studied numerology from Egyptians priests and is now known as the father of Western numerology.
 
     This class is mainly based on the calculation methods from the book "ABC de la Numérologie" of Jean-Daniel FERMIER.
     """
@@ -107,7 +107,6 @@ class Numerology:
 
     first_name_num: str
     last_name_num: str
-    birthdate_num: str
 
     first_name_is_valid: bool = False
     last_name_is_valid: bool = False
@@ -254,7 +253,6 @@ class Numerology:
             ] = self.full_name_missing_numbers
             self._key_figures["name_number"] = None
             self._key_figures["psychic_number"] = None
-            self._key_figures["compound_number"] = None
 
         # Birthdate elements (as birthdate is optional)
         if self.birthdate_is_valid:

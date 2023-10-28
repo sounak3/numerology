@@ -22,7 +22,7 @@ try:
         "numerology", localedir=localedir_path, languages=[lang]
     )
 except:
-    # If the current language does not have a translation, the default laguage (English) will be used English
+    # If the current language does not have a translation, the default language (English) will be used English
     language = gettext.translation(
         "numerology", localedir=localedir_path, languages=[default_lang]
     )

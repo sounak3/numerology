@@ -1,8 +1,33 @@
-from typing import Optional
+import os
+import locale
+import gettext
 from numerology.pythagorean import *
-import pythagorean.numerology as pnumerology
+import pythagorean.numerology as pNumerology
 
-class VNumerology(pnumerology.Numerology):
+localedir_path = os.path.join(
+    os.path.dirname(os.path.realpath(__file__)), "..", "locale"
+)
+
+default_lang = "en"
+try:
+    locale_lang, encoding = locale.getlocale()
+    lang = locale_lang.split("_")[0] if locale_lang else default_lang
+except:
+    # If unable to get the locale language, use English
+    lang = default_lang
+try:
+    language = gettext.translation(
+        "numerology", localedir=localedir_path, languages=[lang]
+    )
+except:
+    # If the current language does not have a translation, the default language (English) will be used English
+    language = gettext.translation(
+        "numerology", localedir=localedir_path, languages=[default_lang]
+    )
+language.install()
+_ = language.gettext
+
+class VNumerology(pNumerology.Numerology):
     """Numerology is the science of numbers. It is the study of the numerical value of the letters in words, names, dates, and ideas.
 
     Vedic Numerology is an ancient Indian system that assigns special meanings and planetary rulership to numbers from 1 to 9,
@@ -73,7 +98,6 @@ class VNumerology(pnumerology.Numerology):
         self._key_figures["name_number"] = self.name_number
         self._key_figures["destiny_number"] = self.destiny_number
         self._key_figures["psychic_number"] = self.psychic_number
-        self._key_figures["compound_number"] = None
         self._key_figures["life_path_number"] = None
         self._key_figures["life_path_number_alternative"] = None
         self._key_figures["attitude_number"] = None

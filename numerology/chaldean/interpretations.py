@@ -4,6 +4,7 @@ import os
 import sys
 from typing import Dict, List, Optional
 
+import numerology.pythagorean.interpretations as pInterpretations
 from .meanings import *
 
 localedir_path = os.path.join(
@@ -22,7 +23,7 @@ try:
         "numerology", localedir=localedir_path, languages=[lang]
     )
 except:
-    # If the current language does not have a translation, the default laguage (English) will be used English
+    # If the current language does not have a translation, the default language (English) will be used English
     language = gettext.translation(
         "numerology", localedir=localedir_path, languages=[default_lang]
     )
@@ -30,7 +31,7 @@ language.install()
 _ = language.gettext
 
 
-class Interpretations:
+class Interpretations(pInterpretations.Interpretations):
 
     key_figures: Dict = {}
     _meanings: Dict = {}
@@ -44,49 +45,24 @@ class Interpretations:
             self._meanings[k] = self.get_interpretation(k, v)
 
     @classmethod
-    def get_interpretation(cls, name: str, value: int):
-        interpretation = None
-        if name == "first_name":
-            interpretation = value
-        elif name == "last_name":
-            interpretation = value
-        elif name == "birthdate":
-            interpretation = value
-        elif name == "life_path_number":
+    def get_interpretation(cls, name: str, value: tuple):
+        if isinstance(value, tuple) and len(value) > 1:
+            interpretation = super().get_interpretation(name, value[1])
+        elif isinstance(value, tuple) and len(value) == 1:
+            interpretation = super().get_interpretation(name, value[0])
+        else:
+            interpretation = super().get_interpretation(name, value)
+        if name == "life_path_number":
             interpretation = {
                 "name": _("Life Path Number"),
                 "number": value,
                 "meaning": cls.life_path_number(number=value),
             }
-        elif name == "life_path_number_alternative":
+        elif name == "name_number":
             interpretation = {
-                "name": _("Life Path Number Alternative"),
+                "name": _("Name Number"),
                 "number": value,
-                "meaning": cls.life_path_number(number=value),
-            }
-        elif name == "hearts_desire_number":
-            interpretation = {
-                "name": _("Hearts Desire (Soul urge) Number"),
-                "number": value,
-                "meaning": cls.hearts_desire_number(number=value),
-            }
-        elif name == "personality_number":
-            interpretation = {
-                "name": _("Personality Number"),
-                "number": value,
-                "meaning": cls.personality_number(number=value),
-            }
-        elif name == "destiny_number":
-            interpretation = {
-                "name": _("Destiny Number"),
-                "number": value,
-                "meaning": cls.destiny_number(number=value),
-            }
-        elif name == "expression_number":
-            interpretation = {
-                "name": _("Expression Number"),
-                "number": value,
-                "meaning": cls.destiny_number(number=value),
+                "meaning": cls.name_number(number=value),
             }
         elif name == "active_number":
             interpretation = {
@@ -109,28 +85,84 @@ class Interpretations:
         return interpretation
 
     @classmethod
-    def life_path_number(cls, number: int):
-        return LifePathNumber.meanings.get(number, None)
+    def life_path_number(cls, number: tuple):
+        if number is None:
+            return None
+        elif isinstance(number, int):
+            return super().life_path_number
+        else:
+            out_title = ""
+            out_text = ""
+            comp_text = ""
+            for n in number:
+                if n < 10:
+                    out_title += LifePathNumber.meanings.get(n, None)["title"] + ", "
+                    out_text += LifePathNumber.meanings.get(n, None)["description"] + " \n\n"
+                else:
+                    comp_text += CompoundNumber.meanings.get(n, None)["title"] + ": "
+                    comp_text += CompoundNumber.meanings.get(n, None)["description"] + " \n\n"
+            out_text += comp_text
+            return {"title": out_title.rstrip(", "), "description": out_text.rstrip("\n")}
 
     @classmethod
-    def hearts_desire_number(cls, number: int):
-        return HeartsDesireNumber.meanings.get(number, None)
+    def birthdate_day_num(cls, number: tuple):
+        if number is None:
+            return None
+        elif isinstance(number, int):
+            return super().birthdate_day_num
+        else:
+            out_title = ""
+            out_text = ""
+            comp_text = ""
+            for n in number:
+                if n < 10:
+                    out_title += DayNumber.meanings.get(n, None)["title"] + ", "
+                    out_text += DayNumber.meanings.get(n, None)["description"] + " \n\n"
+                else:
+                    comp_text += CompoundNumber.meanings.get(n, None)["title"] + ": "
+                    comp_text += CompoundNumber.meanings.get(n, None)["description"] + " \n\n"
+            out_text += comp_text
+            return {"title": out_title.rstrip(", "), "description": out_text.rstrip("\n")}
 
     @classmethod
-    def personality_number(cls, number: int):
-        return PersonalityNumber.meanings.get(number, None)
+    def name_number(cls, number: tuple):
+        if number is None:
+            return None
+        elif isinstance(number, int):
+            return DestinyNumber.meanings.get(number, None)
+        else:
+            out_title = ""
+            out_text = ""
+            comp_text = ""
+            for n in number:
+                if n < 10:
+                    out_title += DestinyNumber.meanings.get(n, None)["title"] + ", "
+                    out_text += DestinyNumber.meanings.get(n, None)["description"] + " \n\n"
+                else:
+                    comp_text += CompoundNumber.meanings.get(n, None)["title"] + ": "
+                    comp_text += CompoundNumber.meanings.get(n, None)["description"] + " \n\n"
+            out_text += comp_text
+            return {"title": out_title.rstrip(", "), "description": out_text.rstrip("\n")}
 
     @classmethod
-    def destiny_number(cls, number: int):
-        return DestinyNumber.meanings.get(number, None)
-
-    @classmethod
-    def active_number(cls, number: int):
-        return ActiveNumber.meanings.get(number, None)
-
-    @classmethod
-    def birthdate_day_num(cls, number: int):
-        return DayNumber.meanings.get(number, None)
+    def active_number(cls, number: tuple):
+        if number is None:
+            return None
+        elif isinstance(number, int):
+            return super().active_number
+        else:
+            out_title = ""
+            out_text = ""
+            comp_text = ""
+            for n in number:
+                if n < 10:
+                    out_title += ActiveNumber.meanings.get(n, None)["title"] + ", "
+                    out_text += ActiveNumber.meanings.get(n, None)["description"] + " \n\n"
+                else:
+                    comp_text += CompoundNumber.meanings.get(n, None)["title"] + ": "
+                    comp_text += CompoundNumber.meanings.get(n, None)["description"] + " \n\n"
+            out_text += comp_text
+            return {"title": out_title.rstrip(", "), "description": out_text.rstrip("\n")}
 
     @property
     def meanings(self):
