@@ -18,14 +18,14 @@ default_lang = "en"
 try:
     locale_lang, encoding = locale.getlocale()
     lang = locale_lang.split("_")[0] if locale_lang else default_lang
-except:
+except Exception:
     # If unable to get the locale language, use English
     lang = default_lang
 try:
     language = gettext.translation(
         "numerology", localedir=localedir_path, languages=[lang]
     )
-except:
+except Exception:
     # If the current language does not have a translation, the default language (English) will be used English
     language = gettext.translation(
         "numerology", localedir=localedir_path, languages=[default_lang]
@@ -103,10 +103,10 @@ class Numerology:
 
     first_name: str
     last_name: str
-    birthdate: str
+    birthdate: Optional[str]
 
-    first_name_num: str
-    last_name_num: str
+    first_name_num: Tuple[int]
+    last_name_num: Tuple[int]
 
     first_name_is_valid: bool = False
     last_name_is_valid: bool = False
@@ -143,7 +143,7 @@ class Numerology:
 
     @classmethod
     def get_numerology_sum(
-        cls, tuple_obj: Tuple[int], upper_bound: int = 9, master_number: bool = True
+        cls, tuple_obj: Tuple[int, ...], upper_bound: int = 9, master_number: bool = True
     ) -> int:
         """Make the numerology sum of the iterable (here, tuples) in parameter.
         The numerology sum is the sum of every digit in a number.
@@ -157,16 +157,16 @@ class Numerology:
         Returns:
             int: [description]
         """
-        sum = math.fsum(tuple_obj)
+        nsum = math.fsum(tuple_obj)
 
         if master_number:
-            while not (sum <= upper_bound or (sum % 11) == 0):
-                sum = math.fsum(tuple(int(num) for num in str(int(sum))))
+            while not (nsum <= upper_bound or (nsum % 11) == 0):
+                nsum = math.fsum(tuple(int(num) for num in str(int(nsum))))
         else:
-            while not (sum <= upper_bound):
-                sum = math.fsum(tuple(int(num) for num in str(int(sum))))
+            while not (nsum <= upper_bound):
+                nsum = math.fsum(tuple(int(num) for num in str(int(nsum))))
 
-        return int(sum)
+        return int(nsum)
 
     # INIT METHODS
 
@@ -216,14 +216,10 @@ class Numerology:
         self.first_name_cleaned = fct.keep_valid_letters(self.first_name, self.alphabet)
         self.last_name_cleaned = fct.keep_valid_letters(self.last_name, self.alphabet)
 
-        self.first_name_num = fct.match_numbers_to_letters(
-            self.first_name_cleaned, self.alphabet
-        )
-        self.last_name_num = fct.match_numbers_to_letters(
-            self.last_name_cleaned, self.alphabet
-        )
+        self.first_name_num = fct.match_numbers_to_letters(self.first_name_cleaned, self.alphabet)
+        self.last_name_num = fct.match_numbers_to_letters(self.last_name_cleaned, self.alphabet)
 
-        if self.birthdate_is_valid:
+        if self.birthdate_is_valid and self.birthdate is not None:
             self.birthdate_year = int(self.birthdate.split("-")[0])
             self.birthdate_month = int(self.birthdate.split("-")[1])
             self.birthdate_day = int(self.birthdate.split("-")[2])
@@ -286,7 +282,7 @@ class Numerology:
         return self._interpretations.meanings
 
     @property
-    def life_path_number(self) -> int:
+    def life_path_number(self) -> tuple:
         """Returns the Life Path Number.
 
         The life path number, also referred as Lucky Number in some places, is the most important one in a numerology chart.
@@ -310,11 +306,14 @@ class Numerology:
             year = self.get_numerology_sum(
                 fct.int_to_tuple(self.birthdate_year), master_number=False
             )
-            sum = day + month + year
-            return self.get_numerology_sum(fct.int_to_tuple(sum), master_number=False)
+            nsum = day + month + year
+            return (self.get_numerology_sum(fct.int_to_tuple(nsum), master_number=False),)
+        else:
+            print("WARNING: Birthdate is not set. Cannot calculate Life Path Number.")
+            return (0,)
 
     @property
-    def life_path_number_alternative(self) -> int:
+    def life_path_number_alternative(self) -> tuple:
         """Returns the Life Path Number (alternative method).
 
         The life path number is the most important one in a numerology chart.
@@ -328,11 +327,11 @@ class Numerology:
         Returns:
             int: Life Path Number (Alternative method)
         """
-        sum = self.birthdate_day + self.birthdate_month + self.birthdate_year
-        return self.get_numerology_sum(fct.int_to_tuple(sum), master_number=False)
+        nsum = self.birthdate_day + self.birthdate_month + self.birthdate_year
+        return (self.get_numerology_sum(fct.int_to_tuple(nsum), master_number=False),)
 
     @property
-    def destiny_number(self) -> int:
+    def destiny_number(self) -> tuple:
         """Returns the Destiny Number.
 
         Sometimes called Expression Number or Lucky Number, it indicates the personal interest, unique capabilities and talents.
@@ -344,12 +343,10 @@ class Numerology:
             self.first_name_num, master_number=False
         )
         legacy_number = self.get_numerology_sum(self.last_name_num, master_number=False)
-        return self.get_numerology_sum(
-            (active_number, legacy_number), master_number=True
-        )
+        return (self.get_numerology_sum((active_number, legacy_number), master_number=True),)
 
     @property
-    def power_number(self) -> int:
+    def power_number(self) -> tuple:
         """Returns the Power Number
 
         Sometimes called the Maturity Number, the power number is obtained by adding together the life path number and destiny number. Then reduce the number to a single digit.
@@ -357,13 +354,11 @@ class Numerology:
         Returns:
             int: [description]
         """
-        return self.get_numerology_sum(
-            fct.int_to_tuple(self.life_path_number + self.destiny_number),
-            master_number=False,
-        )
+        return (self.get_numerology_sum(fct.int_to_tuple(self.life_path_number[0] + self.destiny_number[0]),
+            master_number=False),)
 
     @property
-    def power_number_alternative(self) -> int:
+    def power_number_alternative(self) -> tuple:
         """Returns the Power Number (Alternative)
 
         Sometimes called the Maturity Number, the power number is obtained by adding together the life path number (alternative) and destiny number. Then reduce the number to a single digit.
@@ -371,10 +366,8 @@ class Numerology:
         Returns:
             int: [description]
         """
-        return self.get_numerology_sum(
-            fct.int_to_tuple(self.life_path_number_alternative + self.destiny_number),
-            master_number=False,
-        )
+        return (self.get_numerology_sum(fct.int_to_tuple(self.life_path_number_alternative[0] + self.destiny_number[0]),
+            master_number=False),)
 
     @property
     def personality_number(self) -> int:
@@ -387,12 +380,12 @@ class Numerology:
             int: Inner Dream Number.
         """
         consonants_in_name_num = fct.match_numbers_to_letters(
-            (
+            ''.join(
                 letter
                 for letter in (self.first_name_cleaned + self.last_name_cleaned)
                 if letter in self.consonants
             ),
-            self.alphabet,
+            self.alphabet
         )
         return self.get_numerology_sum(consonants_in_name_num)
 
@@ -407,17 +400,17 @@ class Numerology:
             int: Hearts Desire Number.
         """
         vowels_in_name_num = fct.match_numbers_to_letters(
-            (
+            ''.join(
                 letter
                 for letter in (self.first_name_cleaned + self.last_name_cleaned)
                 if letter in self.vowels
             ),
-            self.alphabet,
+            self.alphabet
         )
         return self.get_numerology_sum(vowels_in_name_num)
 
     @property
-    def active_number(self) -> int:
+    def active_number(self) -> Tuple[int]:
         """Returns the Active Number.
 
         The number from your first name.
@@ -425,10 +418,10 @@ class Numerology:
         Returns:
             int: The Active Number
         """
-        return self.get_numerology_sum(self.first_name_num, master_number=False)
+        return (self.get_numerology_sum(self.first_name_num, master_number=False),)
 
     @property
-    def legacy_number(self) -> int:
+    def legacy_number(self) -> Tuple[int]:
         """Returns the Legacy Number.
 
         The number from your last name.
@@ -436,7 +429,7 @@ class Numerology:
         Returns:
             int: The legacy number
         """
-        return self.get_numerology_sum(self.last_name_num, master_number=False)
+        return (self.get_numerology_sum(self.last_name_num, master_number=False),)
 
     @property
     def full_name_numbers(self) -> Dict[int, int]:
@@ -459,13 +452,11 @@ class Numerology:
         return tuple([number for number in range(1, 10) if number not in full_name_num])
 
     @property
-    def birthdate_day_num(self) -> int:
+    def birthdate_day_num(self) -> Tuple[int]:
         """Returns the numerology sum of the birthday day.
 
         Example: The 27 in 1986-03-27 will give 9."""
-        return self.get_numerology_sum(
-            fct.int_to_tuple(self.birthdate_day), master_number=False
-        )
+        return (self.get_numerology_sum(fct.int_to_tuple(self.birthdate_day), master_number=False),)
 
     @property
     def birthdate_month_num(self) -> int:
@@ -492,7 +483,7 @@ class Numerology:
 
         The original method sums-reduces the 4 digits of the year (1958 > 23 > 5).
         This alternative one sums-reduces the 2 last digits ((19)58 > 13 > 4)."""
-        birthday_year_truncate = fct.int_to_tuple(self.birthdate_year)[-2:]
+        birthday_year_truncate = int(str(self.birthdate_year)[-2:])
         return self.get_numerology_sum(
             fct.int_to_tuple(birthday_year_truncate), master_number=False
         )
@@ -510,8 +501,9 @@ class Numerology:
             month = self.get_numerology_sum(
                 fct.int_to_tuple(self.birthdate_month), master_number=False
             )
-            sum = day + month
-            return self.get_numerology_sum(fct.int_to_tuple(sum), master_number=False)
+            nsum = day + month
+            return self.get_numerology_sum(fct.int_to_tuple(nsum), master_number=False)
+        return 0
 
     @property
     def karma_number(self) -> int:
@@ -521,6 +513,7 @@ class Numerology:
         if self.birthdate:
             day = self.birthdate_day - 1
             return self.get_numerology_sum(fct.int_to_tuple(day), master_number=False)
+        return 0
 
     @property
     def karmic_debt_numbers(self) -> Dict[str, int]:
@@ -530,37 +523,37 @@ class Numerology:
         day = fct.int_to_tuple(self.birthdate_day)
         month = fct.int_to_tuple(self.birthdate_month)
         year = fct.int_to_tuple(self.birthdate_year)
-        sum = day + month + year
-        life_path_number = self.get_numerology_sum(sum, upper_bound=19, master_number=False)
+        nsum = day + month + year
+        life_path_number = self.get_numerology_sum(nsum, upper_bound=19, master_number=False)
         if life_path_number in core_karmic_num:
             core_karmic_num["life_path_number"] = life_path_number
 
         vowels_in_name_num = fct.match_numbers_to_letters(
-            (
+            ''.join(
                 letter
                 for letter in (self.first_name_cleaned + self.last_name_cleaned)
                 if letter in self.vowels
             ),
-            self.alphabet,
+            self.alphabet
         )
         hearts_desire_number = self.get_numerology_sum(vowels_in_name_num, upper_bound=19)
         if hearts_desire_number in debt_numbers:
             core_karmic_num["hearts_desire_number"] = hearts_desire_number
 
         consonants_in_name_num = fct.match_numbers_to_letters(
-            (
+            ''.join(
                 letter
                 for letter in (self.first_name_cleaned + self.last_name_cleaned)
                 if letter in self.consonants
             ),
-            self.alphabet,
+            self.alphabet
         )
         personality_number = self.get_numerology_sum(consonants_in_name_num, upper_bound=19)
         if personality_number in debt_numbers:
             core_karmic_num["personality_number"] = personality_number
 
         destiny_number = self.get_numerology_sum(
-            (self.active_number, self.legacy_number), upper_bound=19, master_number=True
+            (self.active_number[0], self.legacy_number[0]), upper_bound=19, master_number=True
         )
         if destiny_number in debt_numbers:
             core_karmic_num["destiny_number"] = destiny_number
@@ -573,6 +566,3 @@ class Numerology:
 
         return core_karmic_num
 
-    @property
-    def key_figures(self) -> Dict:
-        return self._key_figures

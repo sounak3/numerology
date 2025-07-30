@@ -44,8 +44,20 @@ class Interpretations:
             self._meanings[k] = self.get_interpretation(k, v)
 
     @classmethod
-    def get_interpretation(cls, name: str, value: int):
+    def get_interpretation(cls, name: str, value):
         interpretation = None
+
+        if isinstance(value, str) and value.isdigit():
+            num_value = int(value)
+        elif isinstance(value, str):
+            num_value = 0
+        elif isinstance(value, int):
+            num_value = value
+        elif isinstance(value, (list, tuple)):
+            num_value = int(''.join(map(str, value)) or 0)
+        else:
+            num_value = 0
+
         if name == "first_name":
             interpretation = value
         elif name == "last_name":
@@ -56,103 +68,114 @@ class Interpretations:
             interpretation = {
                 "name": _("Life Path Number"),
                 "number": value,
-                "meaning": cls.life_path_number(number=value),
+                "meaning": cls.life_path_number(number=num_value),
             }
         elif name == "life_path_number_alternative":
             interpretation = {
                 "name": _("Life Path Number Alternative"),
                 "number": value,
-                "meaning": cls.life_path_number(number=value),
+                "meaning": cls.life_path_number(number=num_value),
             }
         elif name == "hearts_desire_number":
             interpretation = {
                 "name": _("Hearts Desire (Soul urge) Number"),
                 "number": value,
-                "meaning": cls.hearts_desire_number(number=value),
+                "meaning": cls.hearts_desire_number(number=num_value),
             }
         elif name == "personality_number":
             interpretation = {
                 "name": _("Personality Number"),
                 "number": value,
-                "meaning": cls.personality_number(number=value),
+                "meaning": cls.personality_number(number=num_value),
             }
         elif name == "destiny_number":
             interpretation = {
                 "name": _("Destiny Number"),
                 "number": value,
-                "meaning": cls.destiny_number(number=value),
+                "meaning": cls.destiny_number(number=num_value),
             }
         elif name == "expression_number":
             interpretation = {
                 "name": _("Expression Number"),
                 "number": value,
-                "meaning": cls.destiny_number(number=value),
+                "meaning": cls.destiny_number(number=num_value),
             }
         elif name == "active_number":
             interpretation = {
                 "name": _("Active Number"),
                 "number": value,
-                "meaning": cls.active_number(number=value),
+                "meaning": cls.active_number(number=num_value),
             }
         elif name == "birthdate_day_num":
             interpretation = {
                 "name": _("Birthdate Day Number"),
                 "number": value,
-                "meaning": cls.birthdate_day_num(number=value),
+                "meaning": cls.birthdate_day_num(number=num_value),
             }
         elif name == "birthdate_month_num":
             interpretation = {
                 "name": _("Birthdate Month Number"),
                 "number": value,
-                "meaning": cls.birthdate_month_num(number=value),
+                "meaning": cls.birthdate_month_num(number=num_value),
             }
         elif name == "birthdate_year_num":
             interpretation = {
                 "name": _("Birthdate Year Number"),
                 "number": value,
-                "meaning": cls.birthdate_year_num(number=value),
+                "meaning": cls.birthdate_year_num(number=num_value),
             }
         elif name == "birthdate_year_num_alternative":
             interpretation = {
                 "name": _("Birthdate Year Number Alternative"),
                 "number": value,
-                "meaning": cls.birthdate_year_num_alternative(number=value),
+                "meaning": cls.birthdate_year_num_alternative(number=num_value),
             }
         elif name == "attitude_number":
             interpretation = {
                 "name": _("Attitude Number"),
                 "number": value,
-                "meaning": cls.attitude_number(number=value),
+                "meaning": cls.attitude_number(number=num_value),
             }
         elif name == "power_number":
             interpretation = {
                 "name": _("Power (Maturity) Number"),
                 "number": value,
-                "meaning": cls.power_number(number=value),
+                "meaning": cls.power_number(number=num_value),
             }
         elif name == "power_number_alternative":
             interpretation = {
                 "name": _("Power (Maturity) Number Alternative"),
                 "number": value,
-                "meaning": cls.power_number_alternative(number=value),
+                "meaning": cls.power_number_alternative(number=num_value),
             }
         elif name == "karma_number":
             interpretation = {
                 "name": _("Karma Number"),
                 "number": value,
-                "meaning": cls.karma_number(number=value),
+                "meaning": cls.karma_number(number=num_value),
             }
         elif name == "full_name_missing_numbers":
+            # Ensure value is a tuple before passing to full_name_missing_numbers
+            numbers_tuple = (value,) if isinstance(value, int) else tuple(value) if value is not None else ()
             interpretation = {
                 "name": _("Karmic Lesson Numbers"),
                 "number": value,
-                "meaning": cls.full_name_missing_numbers(numbers=value),
+                "meaning": cls.full_name_missing_numbers(numbers=numbers_tuple),
             }
         elif name == "karmic_debt_numbers":
+            # Ensure value is a dict[str, int]
+            if isinstance(value, dict):
+                numbers_dict = value
+            elif isinstance(value, tuple):
+                numbers_dict = {str(i): n for i, n in enumerate(value)}
+            elif isinstance(value, int):
+                numbers_dict = {"0": value}
+            else:
+                numbers_dict = {}
             interpretation = {
                 "name": _("Karmic Debt Numbers"),
                 "number": value,
-                "meaning": cls.karmic_debt_numbers(numbers=value),
+                "meaning": cls.karmic_debt_numbers(numbers=numbers_dict),
             }
         return interpretation
 
@@ -215,19 +238,23 @@ class Interpretations:
         out_title = ""
         out_text = ""
         for n in numbers:
-            out_title += KarmicLessonNumber.meanings.get(n, None)["title"] + ", "
-            out_text += KarmicLessonNumber.meanings.get(n, None)["description"] + " \n\n"
+            meaning = KarmicLessonNumber.meanings.get(n, None)
+            if meaning is not None:
+                out_title += meaning["title"] + ", "
+                out_text += meaning["description"] + " \n\n"
         return {"title": out_title.rstrip(", "), "description": out_text.rstrip("\n")}
 
     @classmethod
-    def karmic_debt_numbers(cls, numbers: dict):
+    def karmic_debt_numbers(cls, numbers: Dict[str, int]):
         if numbers is None:
             return None
         out_title = ""
         out_text = ""
         for n in numbers.values():
-            out_title += KarmicDebtNumber.meanings.get(n, None)["title"] + ", "
-            out_text += KarmicDebtNumber.meanings.get(n, None)["description"] + " \n\n"
+            meaning = KarmicDebtNumber.meanings.get(n, None)
+            if meaning is not None:
+                out_title += meaning["title"] + ", "
+                out_text += meaning["description"] + " \n\n"
         return {"title": out_title.rstrip(", "), "description": out_text.rstrip("\n")}
 
     @property

@@ -4,6 +4,9 @@ import gettext
 from numerology.pythagorean import *
 import pythagorean.numerology as pNumerology
 
+from pythagorean.common import Functions as fct
+from vedic.interpretations import Interpretations as VInterpretations
+
 localedir_path = os.path.join(
     os.path.dirname(os.path.realpath(__file__)), "..", "locale"
 )
@@ -12,14 +15,14 @@ default_lang = "en"
 try:
     locale_lang, encoding = locale.getlocale()
     lang = locale_lang.split("_")[0] if locale_lang else default_lang
-except:
+except Exception:
     # If unable to get the locale language, use English
     lang = default_lang
 try:
     language = gettext.translation(
         "numerology", localedir=localedir_path, languages=[lang]
     )
-except:
+except Exception:
     # If the current language does not have a translation, the default language (English) will be used English
     language = gettext.translation(
         "numerology", localedir=localedir_path, languages=[default_lang]
@@ -92,9 +95,19 @@ class VNumerology(pNumerology.Numerology):
         "z",
     )
 
+    def __init__(self, first_name: str, last_name: str, birthdate: str, verbose: bool = True):
+        super().__init__(first_name, last_name, birthdate, False)
+        self.verbose = verbose
+        if self.names_are_valid:
+            self._interpretations = VInterpretations(key_figures=self.key_figures)
+        if self.verbose and self.names_are_valid:
+            print(_("KEY FIGURES:"))
+            fct.print_beautiful_dict(dictionary=self.key_figures)
+            print(_("INTERPRETATIONS:"))
+            fct.print_beautiful_dict(dictionary=self.interpretations)
+
     def set_key_figures(self):
         """Initializes the key figures dictionary."""
-        super().set_key_figures()
         self._key_figures["name_number"] = self.name_number
         self._key_figures["destiny_number"] = self.destiny_number
         self._key_figures["psychic_number"] = self.psychic_number
@@ -105,9 +118,11 @@ class VNumerology(pNumerology.Numerology):
         self._key_figures["karmic_debt_numbers"] = None
         self._key_figures["power_number"] = None
         self._key_figures["power_number_alternative"] = None
+        self._key_figures["expression_number"] = None
+        self._key_figures["birthdate_year_num_alternative"] = None
 
     @property
-    def name_number(self) -> int:
+    def name_number(self) -> tuple:
         """Returns the Name Number.
 
         This number is arrived at by adding the numerological value of each letter in a name and reducing the total
@@ -122,7 +137,7 @@ class VNumerology(pNumerology.Numerology):
         return super(VNumerology, self).destiny_number
 
     @property
-    def destiny_number(self) -> int:
+    def destiny_number(self) -> tuple:
         """Returns the Destiny Number.
 
         This number in Vedic Numerology will reveal what the world think of you. It is the characteristics that other
@@ -132,10 +147,10 @@ class VNumerology(pNumerology.Numerology):
         Returns:
             int: Destiny Number.
         """
-        return super(VNumerology, self).life_path_number_alternative
+        return super(VNumerology, self).life_path_number
 
     @property
-    def psychic_number(self) -> int:
+    def psychic_number(self) -> tuple:
         """Returns the Psychic Number.
 
         The psychic number in Vedic Numerology tells the way you look at yourself. It defines your basic characteristics.

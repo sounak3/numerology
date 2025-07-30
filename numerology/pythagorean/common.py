@@ -2,7 +2,7 @@ import json
 import re
 import unicodedata
 from datetime import datetime
-from typing import Dict, Tuple
+from typing import Dict, Tuple, Optional
 
 from .colors import Colors
 
@@ -40,7 +40,7 @@ class Functions:
             print(
                 f"{Colors.WARNING}The string supplied contains no valid character.{Colors.ENDC}"
             )
-            return None
+            return ""
         else:
             return valid_letters
 
@@ -49,7 +49,7 @@ class Functions:
         if string:
             return tuple(alphabet[letter] for letter in string)
         else:
-            return None
+            return (0,)
 
     @classmethod
     def is_valid_date(cls, date_supplied: str) -> bool:
@@ -77,14 +77,14 @@ class Functions:
             return True
 
     @classmethod
-    def str_number_to_tuple(cls, string: str) -> Tuple[int]:
+    def str_number_to_tuple(cls, string: str) -> Tuple[int, ...]:
         """Returns a tuple from a string (only containing digits) by spliting every digit in it.
 
         Example: The string '1991' will give the tuple (1, 9, 9, 1)."""
         return tuple(int(digit) for digit in string if digit.isdigit())
 
     @classmethod
-    def int_to_tuple(cls, number: int) -> Tuple[int]:
+    def int_to_tuple(cls, number: int) -> Tuple[int, ...]:
         """Returns a tuple from a integer by spliting every digit in it.
 
         Example: The integer 1991 will give the tuple (1, 9, 9, 1)."""

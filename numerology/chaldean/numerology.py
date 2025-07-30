@@ -5,7 +5,6 @@ from numerology.pythagorean import *
 import pythagorean.numerology as pNumerology
 
 from pythagorean.common import Functions as fct
-# from .interpretations import Interpretations as CInterpretations
 from chaldean.interpretations import Interpretations as CInterpretations
 
 localedir_path = os.path.join(
@@ -16,14 +15,14 @@ default_lang = "en"
 try:
     locale_lang, encoding = locale.getlocale()
     lang = locale_lang.split("_")[0] if locale_lang else default_lang
-except:
+except Exception:
     # If unable to get the locale language, use English
     lang = default_lang
 try:
     language = gettext.translation(
         "numerology", localedir=localedir_path, languages=[lang]
     )
-except:
+except Exception:
     # If the current language does not have a translation, the default language (English) will be used English
     language = gettext.translation(
         "numerology", localedir=localedir_path, languages=[default_lang]
@@ -137,11 +136,11 @@ class CNumerology(pNumerology.Numerology):
         """
         active_number = self.get_numerology_sum(self.first_name_num, master_number=False)
         legacy_number = self.get_numerology_sum(self.last_name_num, master_number=False)
-        sum = active_number + legacy_number
-        if sum == self.destiny_number:
+        nsum = active_number + legacy_number
+        if (nsum,) == self.destiny_number:
             return self.destiny_number
         else:
-            return sum, self.destiny_number
+            return (nsum,), self.destiny_number
 
     @property
     def birthdate_year_num_alternative(self) -> int:
@@ -165,7 +164,7 @@ class CNumerology(pNumerology.Numerology):
         first_name_compound = self.get_numerology_sum(self.first_name_num, upper_bound=52, master_number=True)
         first_name_single   = self.get_numerology_sum(self.first_name_num, master_number=False)
         if first_name_compound == first_name_single:
-            return first_name_single
+            return (first_name_single,)
         else:
             return first_name_compound, first_name_single
 
@@ -178,7 +177,7 @@ class CNumerology(pNumerology.Numerology):
             fct.int_to_tuple(self.birthdate_day), master_number=False
         )
         if self.birthdate_day == birthdate_day_single:
-            return birthdate_day_single
+            return (birthdate_day_single,)
         else:
             return self.birthdate_day, birthdate_day_single
 
@@ -207,9 +206,12 @@ class CNumerology(pNumerology.Numerology):
             year = self.get_numerology_sum(
                 fct.int_to_tuple(self.birthdate_year), master_number=False
             )
-            sum = day + month + year
-            num_sum = self.get_numerology_sum(fct.int_to_tuple(sum), master_number=False)
-            if sum == num_sum:
-                return num_sum
+            nsum = day + month + year
+            num_sum = self.get_numerology_sum(fct.int_to_tuple(nsum), master_number=False)
+            if nsum == num_sum:
+                return (num_sum,)
             else:
-                return sum, num_sum
+                return nsum, num_sum
+        else:
+            print(f"{Colors.WARNING}Birthdate is not set. Cannot calculate Life Path Number.{Colors.ENDC}")
+            return (0,)
