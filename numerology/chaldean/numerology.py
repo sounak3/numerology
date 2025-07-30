@@ -140,7 +140,7 @@ class CNumerology(pNumerology.Numerology):
         if (nsum,) == self.destiny_number:
             return self.destiny_number
         else:
-            return (nsum,), self.destiny_number
+            return (nsum,) + self.destiny_number
 
     @property
     def birthdate_year_num_alternative(self) -> int:
