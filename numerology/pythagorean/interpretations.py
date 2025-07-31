@@ -44,25 +44,48 @@ class Interpretations:
             self._meanings[k] = self.get_interpretation(k, v)
 
     @classmethod
+    def get_num_from_value(cls, value) -> int:
+        if isinstance(value, str) and value.isdigit():
+            return int(value)
+        elif isinstance(value, str):
+            return 0
+        elif isinstance(value, int):
+            return value
+        elif isinstance(value, (list, tuple)):
+            return int(''.join(map(str, value)) or 0)
+        else:
+            return 0
+        
+    @classmethod
+    def get_dict_from_value(cls, value) -> Dict[str, int]:
+        if isinstance(value, dict):
+            return value
+        elif isinstance(value, tuple):
+            return {str(i): n for i, n in enumerate(value)}
+        elif isinstance(value, int):
+            return {"0": value}
+        else:
+            return {}
+    
+    @classmethod
+    def get_tuple_from_value(cls, value) -> tuple:
+        if isinstance(value, tuple):
+            return value
+        elif isinstance(value, int):
+            return (value,)
+        elif isinstance(value, str) and value.isdigit():
+            return (int(value),)
+        elif value is not None:
+            return tuple(value)
+        else:
+            return ()
+
+    @classmethod
     def get_interpretation(cls, name: str, value):
         interpretation = None
+        num_value = cls.get_num_from_value(value)
 
-        if isinstance(value, str) and value.isdigit():
-            num_value = int(value)
-        elif isinstance(value, str):
-            num_value = 0
-        elif isinstance(value, int):
-            num_value = value
-        elif isinstance(value, (list, tuple)):
-            num_value = int(''.join(map(str, value)) or 0)
-        else:
-            num_value = 0
-
-        if name == "first_name":
-            interpretation = value
-        elif name == "last_name":
-            interpretation = value
-        elif name == "birthdate":
+        if name in {"first_name", "last_name", "birthdate"}:
             interpretation = value
         elif name == "life_path_number":
             interpretation = {
@@ -155,23 +178,14 @@ class Interpretations:
                 "meaning": cls.karma_number(number=num_value),
             }
         elif name == "full_name_missing_numbers":
-            # Ensure value is a tuple before passing to full_name_missing_numbers
-            numbers_tuple = (value,) if isinstance(value, int) else tuple(value) if value is not None else ()
+            numbers_tuple = cls.get_tuple_from_value(value)
             interpretation = {
                 "name": _("Karmic Lesson Numbers"),
                 "number": value,
                 "meaning": cls.full_name_missing_numbers(numbers=numbers_tuple),
             }
         elif name == "karmic_debt_numbers":
-            # Ensure value is a dict[str, int]
-            if isinstance(value, dict):
-                numbers_dict = value
-            elif isinstance(value, tuple):
-                numbers_dict = {str(i): n for i, n in enumerate(value)}
-            elif isinstance(value, int):
-                numbers_dict = {"0": value}
-            else:
-                numbers_dict = {}
+            numbers_dict = cls.get_dict_from_value(value)
             interpretation = {
                 "name": _("Karmic Debt Numbers"),
                 "number": value,

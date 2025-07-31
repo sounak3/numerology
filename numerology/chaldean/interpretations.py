@@ -18,6 +18,7 @@ try:
 except:
     # If unable to get the locale language, use English
     lang = default_lang
+    raise
 try:
     language = gettext.translation(
         "numerology", localedir=localedir_path, languages=[lang]
@@ -45,17 +46,21 @@ class Interpretations(pInterpretations.Interpretations):
             self._meanings[k] = self.get_interpretation(k, v)
 
     @classmethod
-    def get_interpretation(cls, name: str, value: tuple):
+    def get_num_from_value(cls, value) -> int:
         if isinstance(value, str) and value.isdigit():
-            num_value = int(value)
+            return int(value)
         elif isinstance(value, str):
-            num_value = 0
+            return 0
         elif isinstance(value, int):
-            num_value = value
+            return value
         elif isinstance(value, (list, tuple)):
-            num_value = int(''.join(map(str, value)) or 0)
+            return int(''.join(map(str, value)) or 0)
         else:
-            num_value = 0
+            return 0
+
+    @classmethod
+    def get_interpretation(cls, name: str, value: tuple):
+        num_value = cls.get_num_from_value(value)
 
         if isinstance(value, tuple) and len(value) > 1:
             interpretation = super().get_interpretation(name, value[1])
@@ -63,6 +68,7 @@ class Interpretations(pInterpretations.Interpretations):
             interpretation = super().get_interpretation(name, value[0])
         else:
             interpretation = super().get_interpretation(name, value)
+
         if name == "life_path_number":
             interpretation = {
                 "name": _("Life Path Number"),

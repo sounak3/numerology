@@ -34,22 +34,22 @@ class PythagoreanTestCase(unittest.TestCase):
         self.assertEqual("1958-12-15", self.name1.key_figures["birthdate"])
 
     def test_hearth_desire_number(self):
-        self.assertEqual(1, self.name1.key_figures["hearth_desire_number"])
+        self.assertEqual(1, self.name1.key_figures["hearts_desire_number"])
 
     def test_personality_number(self):
         self.assertEqual(7, self.name1.key_figures["personality_number"])
 
     def test_active_number(self):
-        self.assertEqual(2, self.name1.key_figures["active_number"])
+        self.assertEqual((2,), self.name1.key_figures["active_number"])
 
     def test_legacy_number(self):
-        self.assertEqual(6, self.name1.key_figures["legacy_number"])
+        self.assertEqual((6,), self.name1.key_figures["legacy_number"])
 
     def test_life_path_number(self):
-        self.assertEqual(5, self.name1.key_figures["life_path_number"])
+        self.assertEqual((5,), self.name1.key_figures["life_path_number"])
 
     def test_life_path_number_alternative(self):
-        self.assertEqual(5, self.name1.key_figures["life_path_number_alternative"])
+        self.assertEqual((5,), self.name1.key_figures["life_path_number_alternative"])
 
     def test_full_name_numbers(self):
         self.assertEqual(
@@ -61,7 +61,7 @@ class PythagoreanTestCase(unittest.TestCase):
         self.assertEqual((3, 8), self.name1.key_figures["full_name_missing_numbers"])
 
     def test_birthdate_day_num(self):
-        self.assertEqual(6, self.name1.key_figures["birthdate_day_num"])
+        self.assertEqual((6,), self.name1.key_figures["birthdate_day_num"])
 
     def test_birthdate_month_num(self):
         self.assertEqual(3, self.name1.key_figures["birthdate_month_num"])
