@@ -59,9 +59,7 @@ class Interpretations(pInterpretations.Interpretations):
             return 0
 
     @classmethod
-    def get_interpretation(cls, name: str, value: tuple):
-        num_value = cls.get_num_from_value(value)
-
+    def get_interpretation(cls, name: str, value):
         if isinstance(value, tuple) and len(value) > 1:
             interpretation = super().get_interpretation(name, value[1])
         elif isinstance(value, tuple) and len(value) == 1:
@@ -73,7 +71,7 @@ class Interpretations(pInterpretations.Interpretations):
             interpretation = {
                 "name": _("Life Path Number"),
                 "number": value,
-                "meaning": cls.life_path_number(number=num_value),
+                "meaning": cls.life_path_number(number=value),
             }
         elif name == "name_number":
             interpretation = {
@@ -85,13 +83,13 @@ class Interpretations(pInterpretations.Interpretations):
             interpretation = {
                 "name": _("Active Number"),
                 "number": value,
-                "meaning": cls.active_number(number=num_value),
+                "meaning": cls.active_number(number=value),
             }
         elif name == "birthdate_day_num":
             interpretation = {
                 "name": _("Birthdate Day Number"),
                 "number": value,
-                "meaning": cls.birthdate_day_num(number=num_value),
+                "meaning": cls.birthdate_day_num(number=value),
             }
         elif name == "birthdate_year_num_alternative":
             interpretation = {
@@ -102,100 +100,55 @@ class Interpretations(pInterpretations.Interpretations):
         return interpretation
 
     @classmethod
-    def life_path_number(cls, number: int):
+    def life_path_number(cls, number: tuple | int | None):
         if number is None:
             return None
         elif isinstance(number, int):
             return LifePathNumber.meanings.get(number, None)
-        else:
-            out_title = ""
-            out_text = ""
-            comp_text = ""
-            for n in number:
-                if n < 10:
-                    meaning = LifePathNumber.meanings.get(n, None)
-                    if meaning is not None:
-                        out_title += meaning["title"] + ", "
-                        out_text += meaning["description"] + " \n\n"
-                else:
-                    comp_meaning = CompoundNumber.meanings.get(n, None)
-                    if comp_meaning is not None:
-                        comp_text += comp_meaning["title"] + ": "
-                        comp_text += comp_meaning["description"] + " \n\n"
-            out_text += comp_text
-            return {"title": out_title.rstrip(", "), "description": out_text.rstrip("\n")}
+        return cls._compose_number_meanings(number, LifePathNumber)
 
     @classmethod
-    def birthdate_day_num(cls, number: int):
+    def birthdate_day_num(cls, number: tuple | int | None):
         if number is None:
             return None
         elif isinstance(number, int):
-            return super().birthdate_day_num(number)
-        else:
-            out_title = ""
-            out_text = ""
-            comp_text = ""
-            for n in number:
-                if n < 10:
-                    meaning = DayNumber.meanings.get(n, None)
-                    if meaning is not None:
-                        out_title += meaning["title"] + ", "
-                        out_text += meaning["description"] + " \n\n"
-                else:
-                    comp_meaning = CompoundNumber.meanings.get(n, None)
-                    if comp_meaning is not None:
-                        comp_text += comp_meaning["title"] + ": "
-                        comp_text += comp_meaning["description"] + " \n\n"
-            out_text += comp_text
-            return {"title": out_title.rstrip(", "), "description": out_text.rstrip("\n")}
+            return DayNumber.meanings.get(number, None)
+        return cls._compose_number_meanings(number, DayNumber)
 
     @classmethod
-    def name_number(cls, number: tuple):
+    def name_number(cls, number: tuple | int | None):
         if number is None:
             return None
         elif isinstance(number, int):
             return DestinyNumber.meanings.get(number, None)
-        else:
-            out_title = ""
-            out_text = ""
-            comp_text = ""
-            for n in number:
-                if n < 10:
-                    meaning = DestinyNumber.meanings.get(n, None)
-                    if meaning is not None:
-                        out_title += meaning["title"] + ", "
-                        out_text += meaning["description"] + " \n\n"
-                else:
-                    comp_meaning = CompoundNumber.meanings.get(n, None)
-                    if comp_meaning is not None:
-                        comp_text += comp_meaning["title"] + ": "
-                        comp_text += comp_meaning["description"] + " \n\n"
-            out_text += comp_text
-            return {"title": out_title.rstrip(", "), "description": out_text.rstrip("\n")}
+        return cls._compose_number_meanings(number, DestinyNumber)
 
     @classmethod
-    def active_number(cls, number: int):
+    def active_number(cls, number: tuple | int | None):
         if number is None:
             return None
         elif isinstance(number, int):
-            return super().active_number(number)
-        else:
-            out_title = ""
-            out_text = ""
-            comp_text = ""
-            for n in number:
-                if n < 10:
-                    meaning = ActiveNumber.meanings.get(n, None)
-                    if meaning is not None:
-                        out_title += meaning["title"] + ", "
-                        out_text += meaning["description"] + " \n\n"
-                else:
-                    comp_meaning = CompoundNumber.meanings.get(n, None)
-                    if comp_meaning is not None:
-                        comp_text += comp_meaning["title"] + ": "
-                        comp_text += comp_meaning["description"] + " \n\n"
-            out_text += comp_text
-            return {"title": out_title.rstrip(", "), "description": out_text.rstrip("\n")}
+            return ActiveNumber.meanings.get(number, None)
+        return cls._compose_number_meanings(number, ActiveNumber)
+
+    @classmethod
+    def _compose_number_meanings(cls, numbers, number_class):
+        out_title = ""
+        out_text = ""
+        comp_text = ""
+        for n in numbers:
+            if n < 10:
+                meaning = number_class.meanings.get(n, None)
+                if meaning is not None:
+                    out_title += meaning["title"] + ", "
+                    out_text += meaning["description"] + " \n\n"
+            else:
+                comp_meaning = CompoundNumber.meanings.get(n, None)
+                if comp_meaning is not None:
+                    comp_text += comp_meaning["title"] + ": "
+                    comp_text += comp_meaning["description"] + " \n\n"
+        out_text += comp_text
+        return {"title": out_title.rstrip(", "), "description": out_text.rstrip("\n")}
 
     @property
     def meanings(self):

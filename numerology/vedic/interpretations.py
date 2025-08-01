@@ -59,8 +59,6 @@ class Interpretations(pInterpretations.Interpretations):
 
     @classmethod
     def get_interpretation(cls, name: str, value: tuple):
-        num_value = cls.get_num_from_value(value)
-
         if isinstance(value, tuple) and len(value) > 1:
             interpretation = super().get_interpretation(name, value[1])
         elif isinstance(value, tuple) and len(value) == 1:
@@ -71,7 +69,7 @@ class Interpretations(pInterpretations.Interpretations):
             interpretation = {
                 "name": _("Life Path Number"),
                 "number": value,
-                "meaning": cls.life_path_number(number=num_value),
+                "meaning": cls.life_path_number(number=value),
             }
         elif name == "name_number":
             interpretation = {
@@ -83,13 +81,13 @@ class Interpretations(pInterpretations.Interpretations):
             interpretation = {
                 "name": _("Active Number"),
                 "number": value,
-                "meaning": cls.active_number(number=num_value),
+                "meaning": cls.active_number(number=value),
             }
         elif name == "birthdate_day_num":
             interpretation = {
                 "name": _("Birthdate Day Number"),
                 "number": value,
-                "meaning": cls.birthdate_day_num(number=num_value),
+                "meaning": cls.birthdate_day_num(number=value),
             }
         elif name == "birthdate_year_num_alternative":
             interpretation = {
@@ -100,7 +98,7 @@ class Interpretations(pInterpretations.Interpretations):
         return interpretation
 
     @classmethod
-    def life_path_number(cls, number):
+    def life_path_number(cls, number: tuple | int | None):
         if number is None:
             return None
         if isinstance(number, int):
@@ -108,7 +106,7 @@ class Interpretations(pInterpretations.Interpretations):
         return cls._compose_number_meanings(number, LifePathNumber)
 
     @classmethod
-    def birthdate_day_num(cls, number):
+    def birthdate_day_num(cls, number: tuple | int | None):
         """
         Returns the meaning for the birthdate day number(s).
         Handles both int and iterable of ints.
@@ -120,7 +118,7 @@ class Interpretations(pInterpretations.Interpretations):
         return cls._compose_number_meanings(number, DayNumber)
 
     @classmethod
-    def name_number(cls, number: tuple):
+    def name_number(cls, number: tuple | int | None):
         if number is None:
             return None
         elif isinstance(number, int):
@@ -128,7 +126,7 @@ class Interpretations(pInterpretations.Interpretations):
         return cls._compose_number_meanings(number, DestinyNumber)
 
     @classmethod
-    def active_number(cls, number):
+    def active_number(cls, number: tuple | int | None):
         """
         Returns the meaning for the active number(s).
         Handles both int and iterable of ints.
