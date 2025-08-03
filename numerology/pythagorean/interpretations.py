@@ -4,7 +4,7 @@ import os
 import sys
 from typing import Dict, List, Optional
 
-from .meanings import *
+from .meanings import LifePathNumber, HeartsDesireNumber, PersonalityNumber, DestinyNumber, ActiveNumber, DayNumber, MonthNumber, YearNumber, AttitudeNumber, PowerNumber, KarmaNumber, KarmicLessonNumber, KarmicDebtNumber, LegacyNumber
 
 localedir_path = os.path.join(
     os.path.dirname(os.path.realpath(__file__)), "..", "locale"
@@ -129,6 +129,12 @@ class Interpretations:
                 "number": value,
                 "meaning": cls.active_number(number=num_value),
             }
+        elif name == "legacy_number":
+            interpretation = {
+                "name": _("Legacy Number"),
+                "number": value,
+                "meaning": cls.legacy_number(number=num_value),
+            }
         elif name == "birthdate_day_num":
             interpretation = {
                 "name": _("Birthdate Day Number"),
@@ -185,11 +191,19 @@ class Interpretations:
                 "meaning": cls.full_name_missing_numbers(numbers=numbers_tuple),
             }
         elif name == "karmic_debt_numbers":
-            numbers_dict = cls.get_dict_from_value(value)
+            numbers_tuple = cls.get_tuple_from_value(value)
             interpretation = {
                 "name": _("Karmic Debt Numbers"),
                 "number": value,
-                "meaning": cls.karmic_debt_numbers(numbers=numbers_dict),
+                "meaning": cls.karmic_debt_numbers(numbers=numbers_tuple),
+            }
+        elif name == "full_name_numbers":
+            numbers_dict = cls.get_dict_from_value(value)
+            print(cls.full_name_numbers(numbers=numbers_dict))
+            interpretation = {
+                "name": _("Full Name Numbers"),
+                "number": tuple(value.keys()) if isinstance(value, dict) else value,
+                "meaning": cls.full_name_numbers(numbers=numbers_dict),
             }
         return interpretation
 
@@ -246,6 +260,21 @@ class Interpretations:
         return KarmaNumber.meanings.get(number, None)
 
     @classmethod
+    def full_name_numbers(cls, numbers: Dict[str, int]):
+        if numbers is None:
+            return None
+        out_title = "Details, "
+        out_text = ""
+        for n in numbers.keys():
+            print(n)
+            out_text += str(n) + " - " + str(numbers[n]) + " times. \n"
+        return {"title": out_title.rstrip(", "), "description": out_text.rstrip("\n")}
+
+    @classmethod
+    def legacy_number(cls, number: int):
+        return LegacyNumber.meanings.get(number, None)
+
+    @classmethod
     def full_name_missing_numbers(cls, numbers: tuple):
         if numbers is None:
             return None
@@ -259,12 +288,12 @@ class Interpretations:
         return {"title": out_title.rstrip(", "), "description": out_text.rstrip("\n")}
 
     @classmethod
-    def karmic_debt_numbers(cls, numbers: Dict[str, int]):
+    def karmic_debt_numbers(cls, numbers: tuple):
         if numbers is None:
             return None
         out_title = ""
         out_text = ""
-        for n in numbers.values():
+        for n in numbers:
             meaning = KarmicDebtNumber.meanings.get(n, None)
             if meaning is not None:
                 out_title += meaning["title"] + ", "

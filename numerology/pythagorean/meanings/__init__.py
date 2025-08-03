@@ -14,3 +14,4 @@ from .power_maturity import PowerNumber
 from .karma import KarmaNumber
 from .karmic_lesson import KarmicLessonNumber
 from .karmic_debt import KarmicDebtNumber
+from .legacy_last_name import LegacyNumber
