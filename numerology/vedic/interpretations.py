@@ -5,7 +5,7 @@ import sys
 from typing import Dict, List, Optional
 
 import numerology.pythagorean.interpretations as pInterpretations
-from .meanings import LifePathNumber, DayNumber, DestinyNumber, CompoundNumber, ActiveNumber
+from .meanings import LifePathNumber, DayNumber, DestinyNumber, CompoundNumber, ActiveNumber, HeartsDesireNumber, PersonalityNumber
 
 localedir_path = os.path.join(
     os.path.dirname(os.path.realpath(__file__)), "..", "locale"
@@ -45,26 +45,14 @@ class Interpretations(pInterpretations.Interpretations):
             self._meanings[k] = self.get_interpretation(k, v)
 
     @classmethod
-    def get_num_from_value(cls, value) -> int:
-        if isinstance(value, str) and value.isdigit():
-            return int(value)
-        elif isinstance(value, str):
-            return 0
-        elif isinstance(value, int):
-            return value
-        elif isinstance(value, (list, tuple)):
-            return int(''.join(map(str, value)) or 0)
-        else:
-            return 0
-
-    @classmethod
-    def get_interpretation(cls, name: str, value: tuple):
+    def get_interpretation(cls, name: str, value):
         if isinstance(value, tuple) and len(value) > 1:
             interpretation = super().get_interpretation(name, value[1])
         elif isinstance(value, tuple) and len(value) == 1:
             interpretation = super().get_interpretation(name, value[0])
         else:
             interpretation = super().get_interpretation(name, value)
+
         if name == "life_path_number":
             interpretation = {
                 "name": _("Life Path Number"),
@@ -83,11 +71,11 @@ class Interpretations(pInterpretations.Interpretations):
                 "number": value,
                 "meaning": cls.active_number(number=value),
             }
-        elif name == "birthdate_day_num":
+        elif name == "psychic_number":
             interpretation = {
-                "name": _("Birthdate Day Number"),
+                "name": _("Psychic Number"),
                 "number": value,
-                "meaning": cls.birthdate_day_num(number=value),
+                "meaning": cls.psychic_number(number=value),
             }
         elif name == "birthdate_year_num_alternative":
             interpretation = {
@@ -106,7 +94,7 @@ class Interpretations(pInterpretations.Interpretations):
         return cls._compose_number_meanings(number, LifePathNumber)
 
     @classmethod
-    def birthdate_day_num(cls, number: tuple | int | None):
+    def psychic_number(cls, number: tuple | int | None):
         """
         Returns the meaning for the birthdate day number(s).
         Handles both int and iterable of ints.
@@ -138,6 +126,22 @@ class Interpretations(pInterpretations.Interpretations):
         return cls._compose_number_meanings(number, ActiveNumber)
 
     @classmethod
+    def hearts_desire_number(cls, number: tuple | int | None):
+        if number is None:
+            return None
+        if isinstance(number, int):
+            return HeartsDesireNumber.meanings.get(number, None)
+        return cls._compose_number_meanings(number, HeartsDesireNumber)
+
+    @classmethod
+    def personality_number(cls, number: tuple | int | None):
+        if number is None:
+            return None
+        if isinstance(number, int):
+            return PersonalityNumber.meanings.get(number, None)
+        return cls._compose_number_meanings(number, PersonalityNumber)
+
+    @classmethod
     def _compose_number_meanings(cls, numbers, number_class):
         out_title = ""
         out_text = ""
@@ -147,7 +151,7 @@ class Interpretations(pInterpretations.Interpretations):
                 meaning = number_class.meanings.get(n, None)
                 if meaning is not None:
                     out_title += meaning["title"] + ", "
-                    out_text += meaning["description"] + " \n\n"
+                    out_text += meaning["description"] + " \n"
             else:
                 comp_meaning = CompoundNumber.meanings.get(n, None)
                 if comp_meaning is not None:

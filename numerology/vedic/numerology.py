@@ -106,6 +106,16 @@ class VNumerology(pNumerology.Numerology):
             print(_("INTERPRETATIONS:"))
             fct.print_beautiful_dict(dictionary=self.interpretations)
 
+    def get_all_details(self):
+        if self.names_are_valid:
+            self.init_inner_variables()
+            self.set_key_figures()
+            self._interpretations = VInterpretations(key_figures=self.key_figures)
+            final_interpretations = self.flatten_meanings(self.interpretations)
+            return final_interpretations
+        else:
+            return 'None'
+
     def set_key_figures(self):
         """Initializes the key figures dictionary."""
         self._key_figures["name_number"] = self.name_number
@@ -120,6 +130,7 @@ class VNumerology(pNumerology.Numerology):
         self._key_figures["power_number_alternative"] = None
         self._key_figures["expression_number"] = None
         self._key_figures["birthdate_year_num_alternative"] = None
+        self._key_figures["birthdate_day_num"] = None
 
     @property
     def name_number(self) -> tuple:

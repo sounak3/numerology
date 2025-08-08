@@ -1,4 +1,5 @@
 import gettext
+import json
 import logging
 import math
 import os
@@ -170,14 +171,55 @@ class Numerology:
 
     # INIT METHODS
 
-    def get_key_figures(self):
+    def get_all_details(self):
         if self.names_are_valid:
             self.init_inner_variables()
             self.set_key_figures()
             self._interpretations = Interpretations(key_figures=self.key_figures)
-            return self.key_figures
+            final_interpretations = self.flatten_meanings(self.interpretations)
+            return final_interpretations
         else:
             return 'None'
+
+    def flatten_meanings(self, obj):
+        result = {}
+        for key, value in obj.items():
+            if isinstance(value, dict) and 'number' in value:
+                result[key] = value.copy()  # Keep original structure
+
+                number = value['number']
+                # Handle number
+                if isinstance(number, tuple or list):
+                    result[key]['number'] = ', '.join(str(x) for x in number) if number else "No numbers"  # Flatten the tuple to string
+                elif isinstance(number, int):
+                    result[key]['number'] = str(number) if number else "No numbers"  # Convert single number
+                elif isinstance(number, str) and number.isdigit():
+                    result[key]['number'] = value  # Convert string digits to string
+                elif (isinstance(number, dict) and len(number) == 0):
+                    result[key]['number'] = "No numbers"  # Handle empty dict case
+                elif number is None:
+                    result[key] = "Not applicable"  # Handle None case
+                else: # this should not happen bcz possible number values are int, tuple, list, str nums, dict or None
+                    raise ValueError("Invalid number type for: " + key + ". Expected int, tuple, list, str num, dict or None.")
+
+                meaning = value['meaning']  # assuming that if 'number' is present, 'meaning' should also be present
+                # Handle meaning
+                if isinstance(meaning, dict) and number is not None: # just in case we replaced result[key] value with Not applicable
+                    result[key]['meaning_title'] = meaning.get('title', '')
+                    result[key]['meaning_description'] = meaning.get('description', '')
+                    result[key].pop('meaning', None)  # Remove original key & value dict
+                elif meaning is None and number is not None:
+                    result[key]['meaning_title'] = "Not implemented"
+                    result[key]['meaning_description'] = "This number is not considered in this numerology system."
+                    result[key].pop('meaning', None)  # Remove original key & value dict
+                elif number is None:
+                    result[key] = "Not applicable"
+                else: # this should not happen bcz meaning should always be a dict of title and description
+                    raise ValueError(f"""Invalid meanings for: {key}. Expected a dict of title and description strings.
+                                     Got: {value}""")
+            else:
+                result[key] = value
+        return result
 
     def check_parameters(self):
         self.check_first_name()
@@ -517,7 +559,7 @@ class Numerology:
 
     @property
     def karmic_debt_numbers(self) -> Dict[str, int]:
-        """Returns Karmic debts associated with any of Life Path, Personality, Birth Day, Expression, and Heart’s Desire."""
+        """Returns Karmic debts associated with any of Life Path, Personality, Birth Day, Expression, and Heart's Desire."""
         debt_numbers = [19, 13, 14, 16]
         core_karmic_num = {}
         day = fct.int_to_tuple(self.birthdate_day)
@@ -525,7 +567,7 @@ class Numerology:
         year = fct.int_to_tuple(self.birthdate_year)
         nsum = day + month + year
         life_path_number = self.get_numerology_sum(nsum, upper_bound=19, master_number=False)
-        if life_path_number in core_karmic_num:
+        if life_path_number in debt_numbers:
             core_karmic_num["life_path_number"] = life_path_number
 
         vowels_in_name_num = fct.match_numbers_to_letters(
@@ -558,11 +600,8 @@ class Numerology:
         if destiny_number in debt_numbers:
             core_karmic_num["destiny_number"] = destiny_number
 
-        birthdate_day_num = self.get_numerology_sum(
-            fct.int_to_tuple(self.birthdate_day), upper_bound=19, master_number=False
-        )
-        if birthdate_day_num in debt_numbers:
-            core_karmic_num["birthdate_day_num"] = birthdate_day_num
+        if self.birthdate_day in debt_numbers:
+            core_karmic_num["birthdate_day_num"] = self.birthdate_day
 
         return core_karmic_num
 
