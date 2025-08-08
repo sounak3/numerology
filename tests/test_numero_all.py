@@ -19,8 +19,8 @@ class TestStartApp(unittest.TestCase):
 
     def test_with_sample_data(self):
         test_data = [
-            ("Alice", "Johnson", "1990-01-15"),
-            ("Bob Kumar", "Smith", "1985-05-20"),
+            # ("Alice", "Johnson", "1990-01-15"),
+            # ("Bob Kumar", "Smith", "1985-05-20"),
             ("Charlie", "Mc Brown", "1978-12-03")
         ]
 

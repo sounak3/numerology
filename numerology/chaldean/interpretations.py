@@ -46,19 +46,6 @@ class Interpretations(pInterpretations.Interpretations):
             self._meanings[k] = self.get_interpretation(k, v)
 
     @classmethod
-    def get_num_from_value(cls, value) -> int:
-        if isinstance(value, str) and value.isdigit():
-            return int(value)
-        elif isinstance(value, str):
-            return 0
-        elif isinstance(value, int):
-            return value
-        elif isinstance(value, (list, tuple)):
-            return int(''.join(map(str, value)) or 0)
-        else:
-            return 0
-
-    @classmethod
     def get_interpretation(cls, name: str, value):
         if isinstance(value, tuple) and len(value) > 1:
             interpretation = super().get_interpretation(name, value[1])
@@ -95,7 +82,7 @@ class Interpretations(pInterpretations.Interpretations):
             interpretation = {
                 "name": _("Age Number"),
                 "number": value,
-                "meaning": "The year when you are aged " + str(value) + " will be an important year of your life.",
+                "meaning": {"title": "Sync with Accumulated Karmic Energies from Past", "description": "The year when you are aged " + str(value) + " will be an important year of your life."},
             }
         return interpretation
 
@@ -141,7 +128,7 @@ class Interpretations(pInterpretations.Interpretations):
                 meaning = number_class.meanings.get(n, None)
                 if meaning is not None:
                     out_title += meaning["title"] + ", "
-                    out_text += meaning["description"] + " \n\n"
+                    out_text += meaning["description"] + " \n"
             else:
                 comp_meaning = CompoundNumber.meanings.get(n, None)
                 if comp_meaning is not None:
